@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int CAMERA_VIEW_INIT = 1001;
     public static final int CAMERA_VIEW_PREVIEW = 1002;
     public static final int UPDATE_FRAME_ROUND = 1003;
-    public static final long NEED_SIZE = 100_000_000;//100M
+    public static final long NEED_SIZE = 500_000_000;//500M
 
     private SurfaceView mSurfaceView;
     private Button mPicture;
