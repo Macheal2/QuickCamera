@@ -168,13 +168,16 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    MediaScannerConnection mMediaScanner = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDeiveceWith = getWindowManager().getDefaultDisplay().getWidth();
         mPowerManger = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = mPowerManger.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "QuickCamera");
-
+        mMediaScanner = new MediaScannerConnection(this, null);
+        mMediaScanner.connect();
         setContentView(R.layout.activity_main);
         mSurfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         mPicture = (Button) findViewById(R.id.btn_picture);
@@ -455,8 +458,14 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("Yar", "2. IOException = " + e);
                 }
                 // 扫描本地mp4文件并添加到本地视频库
-                MediaScannerConnection mMediaScanner = new MediaScannerConnection(this, null);
-                mMediaScanner.connect();
+                if (mMediaScanner == null) {
+                    mMediaScanner = new MediaScannerConnection(this, null);
+                }
+
+                if (mMediaScanner != null && !mMediaScanner.isConnected()) {
+                    mMediaScanner.connect();
+                }
+
                 if (mMediaScanner !=null && mMediaScanner.isConnected()) {
                     mMediaScanner.scanFile(tempFile.getAbsolutePath(), ".jpg");
                 }
