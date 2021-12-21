@@ -130,8 +130,11 @@ public class MainActivity extends AppCompatActivity {
             //Log.d(TAG, "onPreviewFrame: data size:" + data.length);
             //Bitmap bm = getOriBitmap(data, mWidth, mHeight);
             if (mWidth > 0 && mHeight > 0) {
-                byte[] yuv = rotateYUV(data, mWidth, mHeight);
+                byte[] yuv = rotateYUV(data, mWidth, mHeight);//获取旋转后的yuv
                 Bitmap bm = getBitmap(yuv, mHeight, mWidth);
+
+                //Bitmap bm = getBitmap(data, mWidth, mHeight);//获取无需旋转的yuv
+
                 mImage.setImageBitmap(bm);
                 mFrameTips.setText("Current frame: " + mRealCount);
 
@@ -250,7 +253,10 @@ public class MainActivity extends AppCompatActivity {
      * @return
      */
     private Camera getCamera() {
-        if (Camera.getNumberOfCameras() > 0) {
+
+        int num = Camera.getNumberOfCameras();
+        Log.i("Yar", "num = " + num);
+        if (num > 0) {
             Camera mCamera = null;
             try {
                 mCamera = Camera.open(0);
@@ -259,6 +265,7 @@ public class MainActivity extends AppCompatActivity {
                 parameters.setPictureFormat(ImageFormat.JPEG);
                 //设置图片方向
                 parameters.setRotation(90);
+                parameters.setPreviewFrameRate(30);
                 //设置预览大小
                 List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
                 for (int i = 0; i < sizes.size(); i++) {
@@ -279,12 +286,14 @@ public class MainActivity extends AppCompatActivity {
                     mHeight = curSize.height;
                 }
                 mCamera.setParameters(parameters);
-                mCamera.setDisplayOrientation(90);
+                mCamera.setDisplayOrientation(90);//自带camera一般需要设为90
             } catch (Exception e) {
                 mCamera = null;
             } finally {
                 return mCamera;
             }
+        } else {
+            finish();
         }
         return null;
     }
@@ -368,6 +377,11 @@ public class MainActivity extends AppCompatActivity {
                     mLastSavedPicId = pic_id;
                     mCurrentCount++;
                     mHandler.sendMessage(mHandler.obtainMessage(UPDATE_FRAME_SAVED, pic_id));
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 } else if (mCurrentCount >= MAX_SAVED_COUNT) {
                     mCurrentCount = 0;
                     mRoundCount++;
@@ -385,6 +399,7 @@ public class MainActivity extends AppCompatActivity {
         return bitmap;
     }
 
+    //旋转后的yuv数据
     private byte[] rotateYUV(byte[] data, int imageWidth, int imageHeight) {
         //android.util.Log.i("Yar", "0. =====rotate start()===== mCount = " + mCount);
         Camera.Size size;
